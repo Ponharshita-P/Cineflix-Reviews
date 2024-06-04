@@ -15,7 +15,7 @@ Bootstrap5(app)
 ##CREATE DB
 class Base(DeclarativeBase):
     pass
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///movies.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://default:CeT0gqBcrj5l@ep-solitary-star-a44bncmy.us-east-1.aws.neon.tech:5432/verceldb?sslmode=require"'
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 
