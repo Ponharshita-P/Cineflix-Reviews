@@ -5,8 +5,9 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import Integer, String, Float
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, Length, NumberRange
 import requests
+from sqlalchemy import asc
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
@@ -15,7 +16,7 @@ Bootstrap5(app)
 ##CREATE DB
 class Base(DeclarativeBase):
     pass
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://movies_a65q_user:msitH7zXv1ZtUclu34zoJroupaAjpWtJ@dpg-cpfatdtds78s73991nvg-a/movies_a65q'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///movies.db'
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 
@@ -39,8 +40,8 @@ class AddMovieForm(FlaskForm):
     submit = SubmitField("Add Movie")
 
 class RateMovieForm(FlaskForm):
-    rating = StringField("Your Rating Out of 10 e.g. 7.5")
-    review = StringField("Your Review")
+    rating = StringField("Your Rating Out of 10 e.g. 7.5", validators=[DataRequired(), NumberRange(min=0, max=10)])
+    review = StringField("Your Review", validators=[DataRequired(), Length(max=20)])
     submit = SubmitField("Done")
 
 # Example function to add a new movie
@@ -67,7 +68,7 @@ with app.app_context():
 
 @app.route("/")
 def home():
-    result = db.session.execute(db.select(Movie).order_by(Movie.rating))
+    result = db.session.execute(db.select(Movie).order_by((Movie.rating)))
     all_movies = result.scalars().all()  # convert ScalarResult to Python List
     for i in range(len(all_movies)):
         all_movies[i].ranking = len(all_movies) - i
@@ -134,4 +135,4 @@ def delete(id):
     return redirect(url_for('home'))
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    app.run(debug=True)
